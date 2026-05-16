@@ -1225,6 +1225,23 @@ index e4380b37f..444303c57 100644
  		last_vma_end = vma->vm_end;
  
  		/*
+@@ -999,8 +1056,15 @@ static int show_smaps_rollup(struct seq_file *m, void *v)
+ 				continue;
+ 
+ 			/* Case 4 above */
+-			if (vma->vm_end > last_vma_end)
++			if (vma->vm_end > last_vma_end) {
++#ifdef CONFIG_KSU_SUSFS_SUS_MAP
++				if (!vma->vm_file || !(SUSFS_IS_INODE_SUS_MAP(file_inode(vma->vm_file)))) {
++					smap_gather_stats(vma, &mss, last_vma_end);
++				}
++#else
+ 				smap_gather_stats(vma, &mss, last_vma_end);
++#endif // #ifdef CONFIG_KSU_SUSFS_SUS_MAP
++			}
+ 		}
+ 	} for_each_vma(vmi, vma);
+ 
 @@ -1021,8 +1078,15 @@ static int show_smaps_rollup(struct seq_file *m, void *v)
  
  			/* Case 4 above */
@@ -1974,16 +1991,16 @@ diff --git a/mm/memory.c b/mm/memory.c
 index 51646a051..a610c496f 100644
 --- a/mm/memory.c
 +++ b/mm/memory.c
-@@ -82,6 +82,9 @@
- #include <linux/vmalloc.h>
- #include <linux/sched/sysctl.h>
- #include <linux/zswap.h>
+@@ -42,6 +42,9 @@
+ #include <linux/kernel_stat.h>
+ #include <linux/mm.h>
+ #include <linux/mm_inline.h>
 +#ifdef CONFIG_KSU_SUSFS_SUS_MAP
 +#include <linux/susfs_def.h>
 +#endif // #ifdef CONFIG_KSU_SUSFS_SUS_MAP
- 
- #include <trace/events/kmem.h>
- #include <trace/hooks/mm.h>
+ #include <linux/sched/mm.h>
+ #include <linux/sched/coredump.h>
+ #include <linux/sched/numa_balancing.h>
 @@ -6420,8 +6423,18 @@ int __access_remote_vm(struct mm_struct *mm, unsigned long addr, void *buf,
  		int bytes, offset;
  		void *maddr;
