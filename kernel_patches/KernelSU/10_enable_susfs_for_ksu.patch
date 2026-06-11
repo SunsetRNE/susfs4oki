@@ -139,7 +139,7 @@ diff --git a/kernel/Kbuild b/kernel/Kbuild
 index 28e5a3a8..63559d7e 100644
 --- a/kernel/Kbuild
 +++ b/kernel/Kbuild
-@@ -94,4 +94,14 @@
+@@ -150,4 +150,14 @@
  ccflags-y += -Wno-strict-prototypes -Wno-int-conversion -Wno-gcc-compat -Wno-missing-prototypes
  ccflags-y += -Wno-declaration-after-statement -Wno-unused-function
  
